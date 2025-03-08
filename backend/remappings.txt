@@ -1,1 +1,2 @@
 v4-periphery/=lib/v4-periphery/src
+foundry-devops/=lib/foundry-devops/src

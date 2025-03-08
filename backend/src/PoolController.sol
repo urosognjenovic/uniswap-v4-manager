@@ -46,6 +46,7 @@ contract PoolController {
         int24 tickUpper,
         uint256 liquidity,
         uint128 amount0Max,
+        uint128 amount1Max,
         address recipient,
         bytes memory hookData
     ) external {
@@ -54,7 +55,7 @@ contract PoolController {
         PoolKey memory poolKey = getPoolKey(token0Address, token1Address, fee, tickSpacing, hooksAddress);
 
         bytes[] memory params = encodeCreatePoolAndAddLiquidityMulticall(
-            poolKey, startingPrice, tickLower, tickUpper, liquidity, amount0Max, recipient, hookData
+            poolKey, startingPrice, tickLower, tickUpper, liquidity, amount0Max, amount1Max, recipient, hookData
         );
 
         approvePermit2AndAllowanceTransfer(token0Address);
@@ -72,6 +73,7 @@ contract PoolController {
         int24 tickUpper,
         uint256 liquidity,
         uint128 amount0Max,
+        uint128 amount1Max,
         address recipient,
         bytes memory hookData
     ) internal view returns (bytes[] memory) {
@@ -80,7 +82,8 @@ contract PoolController {
 
         bytes memory actions = abi.encodePacked(uint8(Actions.MINT_POSITION), uint8(Actions.SETTLE_PAIR));
         bytes[] memory mintParams = new bytes[](2);
-        mintParams[0] = abi.encode(poolKey, tickLower, tickUpper, liquidity, amount0Max, recipient, hookData);
+        mintParams[0] =
+            abi.encode(poolKey, tickLower, tickUpper, liquidity, amount0Max, amount1Max, recipient, hookData);
         mintParams[1] = abi.encode(poolKey.currency0, poolKey.currency1);
         uint256 deadline = block.timestamp + 60;
         params[1] = abi.encodeWithSelector(
